@@ -7,7 +7,10 @@ Built for self-check (e.g. PolyU coursework): upload `.docx`, parse in the brows
 
 - Drag-and-drop or choose a **Word (.docx)** file (primary path)
 - Fallback: paste plain text
-- **AI rate 0–100%**, risk level, feature breakdown, highlighted suspicious sentences
+- **AI rate 0–100%** with explicit “estimated probability this text is AI-generated”
+- Likelihood panel: likely AI / likely human / uncertain (sums to 100%)
+- Feature contribution shares (% of evidence) and suspicious-sentence mix (N of M)
+- Risk level, feature bars, highlighted suspicious sentences
 - Near-duplicate sentence pairs **within the same document** (not an external corpus)
 - Fully client-side; text does not leave your machine
 

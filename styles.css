@@ -445,3 +445,96 @@ footer {
 }
 
 #error.visible { display: block; }
+
+
+.prob-line {
+  font-weight: 600;
+  color: var(--text) !important;
+  font-size: 0.95rem !important;
+  margin-bottom: 0.45rem;
+}
+
+.section-note {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin: -0.35rem 0 1rem;
+}
+
+.likelihood-section { margin-bottom: 1.25rem; }
+
+.likelihood-stack {
+  display: flex;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--border);
+  margin-bottom: 1rem;
+}
+
+.likelihood-stack > i {
+  display: block;
+  height: 100%;
+  transition: width .6s ease;
+}
+
+.seg-ai { background: var(--danger); }
+.seg-unc { background: var(--warning); }
+.seg-hu { background: var(--success); }
+
+.likelihood-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .likelihood-grid { grid-template-columns: 1fr; }
+}
+
+.lik-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  background: var(--bg-elevated);
+}
+
+.lik-card .lik-k {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.lik-card .lik-v {
+  font-size: 1.45rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.lik-card.ai .lik-v { color: var(--danger); }
+.lik-card.hu .lik-v { color: var(--success); }
+.lik-card.unc .lik-v { color: var(--warning); }
+
+.sentence-mix {
+  margin-top: 0.9rem;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.feature .share-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  margin-left: 0.35rem;
+  vertical-align: middle;
+}
+
+.feature-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}

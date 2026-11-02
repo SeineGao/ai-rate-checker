@@ -65,25 +65,53 @@
           </svg>
           <div class="center">
             <div class="pct" id="scorePct">0%</div>
-            <div class="label">AI rate</div>
+            <div class="label">AI prob.</div>
           </div>
         </div>
         <div class="score-meta">
           <h2 id="scoreTitle">Analysis complete</h2>
           <span class="risk" id="riskBadge">—</span>
+          <p class="prob-line" id="probLine">Estimated probability this text is AI-generated: —</p>
           <p id="scoreSummary"></p>
         </div>
+      </div>
+
+      <div class="section likelihood-section">
+        <h3>How likely is this AI-written?</h3>
+        <p class="section-note">Three-way split derived from the overall AI rate (sums to 100%). Heuristic display only.</p>
+        <div class="likelihood-stack" id="likelihoodStack" aria-hidden="true">
+          <i class="seg-ai" id="segAi" style="width:0%"></i>
+          <i class="seg-unc" id="segUnc" style="width:0%"></i>
+          <i class="seg-hu" id="segHu" style="width:0%"></i>
+        </div>
+        <div class="likelihood-grid" id="likelihoodGrid">
+          <div class="lik-card ai">
+            <div class="lik-k">Likely AI-written</div>
+            <div class="lik-v" id="likAi">—</div>
+          </div>
+          <div class="lik-card hu">
+            <div class="lik-k">Likely human-written</div>
+            <div class="lik-v" id="likHu">—</div>
+          </div>
+          <div class="lik-card unc">
+            <div class="lik-k">Uncertain / mixed</div>
+            <div class="lik-v" id="likUnc">—</div>
+          </div>
+        </div>
+        <p class="sentence-mix" id="sentenceMix"></p>
       </div>
 
       <div class="stats-row" id="statsRow"></div>
 
       <div class="section">
-        <h3>Feature breakdown</h3>
+        <h3>Feature contribution (share of evidence)</h3>
+        <p class="section-note">Each bar shows feature strength; the share % is that feature’s weighted contribution to the total evidence signal.</p>
         <div id="features"></div>
       </div>
 
       <div class="section">
         <h3>Suspicious sentences (by AI-like score)</h3>
+        <p class="section-note" id="susMixNote"></p>
         <div class="sentences" id="suspicious"></div>
       </div>
 

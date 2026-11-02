@@ -461,19 +461,44 @@
     const pct = Math.round(aiRate * 100);
     const duplicates = findDuplicates(sentences);
 
-    const featureRows = [
-      { key: "phrase", name: "AI boilerplate / template phrases", score: feat.phrase, detail: `${phraseHits.length} hit(s)` },
-      { key: "burstiness", name: "Even sentence length (low burstiness)", score: feat.burstiness, detail: `Length SD ${stddev(lengths).toFixed(1)}` },
-      { key: "ttr", name: "Low lexical diversity (TTR)", score: feat.ttr, detail: `TTR ${typeTokenRatio(tokens).toFixed(3)}` },
-      { key: "connector", name: "Discourse-connector density", score: feat.connector, detail: "Template-like transitions" },
-      { key: "para", name: "Paragraph length evenness", score: feat.para, detail: "Whether paragraphs are overly uniform" },
-      { key: "list", name: "List / enumeration density", score: feat.list, detail: "LLM-style bulletization" },
-      { key: "punct", name: "Uniform sentence endings", score: feat.punct, detail: "Highly consistent end punctuation" },
+    const featureMeta = [
+      { key: "phrase", name: "AI boilerplate / template phrases", detail: `${phraseHits.length} hit(s)` },
+      { key: "burstiness", name: "Even sentence length (low burstiness)", detail: `Length SD ${stddev(lengths).toFixed(1)}` },
+      { key: "ttr", name: "Low lexical diversity (TTR)", detail: `TTR ${typeTokenRatio(tokens).toFixed(3)}` },
+      { key: "connector", name: "Discourse-connector density", detail: "Template-like transitions" },
+      { key: "para", name: "Paragraph length evenness", detail: "Whether paragraphs are overly uniform" },
+      { key: "list", name: "List / enumeration density", detail: "LLM-style bulletization" },
+      { key: "punct", name: "Uniform sentence endings", detail: "Highly consistent end punctuation" },
     ];
+
+    // Contribution share = (featureScore * weight) / sum(...), as % of evidence signal.
+    let contribSum = 0;
+    const rawContrib = featureMeta.map((m) => {
+      const c = (feat[m.key] || 0) * (weights[m.key] || 0);
+      contribSum += c;
+      return c;
+    });
+    const featureRows = featureMeta.map((m, i) => {
+      const score = feat[m.key] || 0;
+      const contrib = rawContrib[i];
+      const share = contribSum > 0 ? (contrib / contribSum) * 100 : 0;
+      return {
+        ...m,
+        score,
+        weight: weights[m.key] || 0,
+        contrib,
+        share,
+        detail: m.detail,
+      };
+    });
+
+    const suspiciousAll = sentScores.filter((s) => s.score >= 0.25);
+    const likelihood = likelihoodSplit(pct);
 
     return {
       pct,
       aiRate,
+      likelihood,
       sentences: sentences.length,
       chars: charLen(text),
       tokens: tokens.length,
@@ -482,7 +507,32 @@
       sentScores,
       duplicates,
       ttr: typeTokenRatio(tokens),
+      suspiciousCount: suspiciousAll.length,
+      suspiciousPct: sentences.length
+        ? Math.round((suspiciousAll.length / sentences.length) * 100)
+        : 0,
     };
+  }
+
+
+  /**
+   * Three-way likelihood panel (integers sum to 100).
+   * - likelyAi mirrors the headline AI rate (pct), so the big number and
+   *   "Likely AI-written" stay aligned for readability.
+   * - The residual mass (100 - pct) is split between human vs uncertain.
+   * - Uncertain takes a larger share of the residual when the score is near
+   *   50% (mixed signals) and shrinks toward the extremes.
+   * Example: pct=72 → residual=28, nearMid≈0.56 → uncertain≈10–14, human≈14–18.
+   */
+  function likelihoodSplit(pct) {
+    const likelyAi = Math.max(0, Math.min(100, Math.round(pct)));
+    const residual = 100 - likelyAi;
+    const nearMid = 1 - Math.abs(likelyAi - 50) / 50;
+    let uncertain = Math.round(residual * (0.28 + 0.35 * nearMid));
+    if (residual > 0 && uncertain < 1 && likelyAi > 5 && likelyAi < 95) uncertain = 1;
+    if (uncertain > residual) uncertain = residual;
+    const likelyHuman = residual - uncertain;
+    return { likelyAi, likelyHuman, uncertain };
   }
 
   function riskLevel(pct) {
@@ -499,11 +549,15 @@
 
   function render(report) {
     const risk = riskLevel(report.pct);
+    const lik = report.likelihood || likelihoodSplit(report.pct);
+
     $("scorePct").textContent = report.pct + "%";
     $("scoreTitle").textContent = risk.title;
     const badge = $("riskBadge");
     badge.className = "risk " + risk.cls;
     badge.textContent = risk.label;
+    $("probLine").textContent =
+      "Estimated probability this text is AI-generated: " + report.pct + "%";
     $("scoreSummary").textContent = risk.summary + " (Heuristic estimate—not an official academic verdict.)";
 
     const fill = $("gaugeFill");
@@ -512,6 +566,24 @@
     fill.style.strokeDashoffset = String(offset);
     fill.setAttribute("stroke", report.pct >= 65 ? "#ef4444" : report.pct >= 35 ? "#f59e0b" : "#22c55e");
 
+    $("likAi").textContent = lik.likelyAi + "%";
+    $("likHu").textContent = lik.likelyHuman + "%";
+    $("likUnc").textContent = lik.uncertain + "%";
+    $("segAi").style.width = lik.likelyAi + "%";
+    $("segHu").style.width = lik.likelyHuman + "%";
+    $("segUnc").style.width = lik.uncertain + "%";
+
+    const mixLine =
+      "Suspicious sentences: " +
+      report.suspiciousCount +
+      " of " +
+      report.sentences +
+      " (" +
+      report.suspiciousPct +
+      "%)";
+    $("sentenceMix").textContent = mixLine;
+    $("susMixNote").textContent = mixLine + " · listed below by AI-like score (top 15).";
+
     $("statsRow").innerHTML = [
       ["Sentences", report.sentences],
       ["Characters", report.chars],
@@ -519,13 +591,20 @@
       ["Boilerplate hits", report.phraseCount],
       ["TTR", report.ttr.toFixed(3)],
       ["Similar pairs", report.duplicates.length],
+      ["Suspicious share", report.suspiciousPct + "%"],
     ].map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
 
     $("features").innerHTML = report.featureRows.map((f) => {
-      const pct = Math.round(f.score * 100);
+      const strength = Math.round(f.score * 100);
+      const share = Math.round(f.share);
+      const weightPct = Math.round((f.weight || 0) * 100);
       return `<div class="feature">
-        <div class="feature-head"><span class="name">${f.name}</span><span class="val">${pct}% · ${f.detail}</span></div>
-        <div class="bar"><i style="width:${pct}%;background:${barColor(f.score)}"></i></div>
+        <div class="feature-head">
+          <span class="name">${f.name}<span class="share-tag">${share}% of evidence</span></span>
+          <span class="val">strength ${strength}% · ${f.detail}</span>
+        </div>
+        <div class="bar"><i style="width:${strength}%;background:${barColor(f.score)}"></i></div>
+        <div class="feature-sub">Model weight ${weightPct}% · contribution share ${share}% of evidence</div>
       </div>`;
     }).join("");
 
@@ -622,5 +701,5 @@ In conclusion, this paper will delve into the integration of AI and higher educa
   });
 
   // Expose for smoke tests
-  window.__AIRateChecker = { analyze, extractDocx, splitSentences };
+  window.__AIRateChecker = { analyze, extractDocx, splitSentences, likelihoodSplit };
 })();
