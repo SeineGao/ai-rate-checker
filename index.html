@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" class="auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Rate Checker · Local Heuristic Detector</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>AI Rate Checker</h1>
+        <p class="sub">Local heuristic estimate · Word (.docx) upload · No cloud API</p>
+      </div>
+      <button type="button" class="theme-toggle" id="themeBtn" title="Toggle theme">Light / Dark</button>
+    </header>
+
+    <div class="disclaimer">
+      <strong>Important:</strong>
+      This tool uses local statistical heuristics. It is <strong>not</strong> Turnitin, GPTZero, or any official academic verdict,
+      and must not be used as grounds for misconduct findings. Results are for self-check only—always apply human judgment.
+    </div>
+
+    <div id="error" role="alert"></div>
+
+    <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload Word document">
+      <div class="icon">📄</div>
+      <div class="title">Drop a .docx here, or click to choose a file</div>
+      <div class="hint">Word (.docx) only · Text is parsed in your browser and never uploaded</div>
+      <input type="file" id="fileInput" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden />
+    </div>
+
+    <div class="file-info" id="fileInfo">
+      <span class="name" id="fileName"></span>
+      <span class="size" id="fileSize"></span>
+      <button type="button" class="btn btn-ghost" id="clearFile" style="padding:0.35rem 0.7rem;font-size:0.8rem">Clear</button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="analyzeBtn" disabled>Check AI rate</button>
+      <button type="button" class="btn btn-ghost" id="sampleBtn">Load sample text</button>
+    </div>
+
+    <details class="paste-section" id="pasteDetails">
+      <summary>Or paste plain text (fallback)</summary>
+      <textarea id="pasteArea" placeholder="Paste Chinese or English text here…"></textarea>
+      <div class="actions" style="margin-top:0.75rem;margin-bottom:0">
+        <button type="button" class="btn btn-primary" id="analyzePasteBtn">Check pasted text</button>
+      </div>
+    </details>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <div>Parsing and scoring…</div>
+    </div>
+
+    <div class="results" id="results">
+      <div class="score-card">
+        <div class="gauge" aria-hidden="true">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <circle class="track" cx="70" cy="70" r="58" />
+            <circle class="fill" id="gaugeFill" cx="70" cy="70" r="58"
+              stroke-dasharray="364.4" stroke-dashoffset="364.4" stroke="#3b82f6" />
+          </svg>
+          <div class="center">
+            <div class="pct" id="scorePct">0%</div>
+            <div class="label">AI rate</div>
+          </div>
+        </div>
+        <div class="score-meta">
+          <h2 id="scoreTitle">Analysis complete</h2>
+          <span class="risk" id="riskBadge">—</span>
+          <p id="scoreSummary"></p>
+        </div>
+      </div>
+
+      <div class="stats-row" id="statsRow"></div>
+
+      <div class="section">
+        <h3>Feature breakdown</h3>
+        <div id="features"></div>
+      </div>
+
+      <div class="section">
+        <h3>Suspicious sentences (by AI-like score)</h3>
+        <div class="sentences" id="suspicious"></div>
+      </div>
+
+      <div class="section">
+        <h3>In-document near-duplicates (simple check)</h3>
+        <div class="sentences" id="duplicates"></div>
+      </div>
+    </div>
+
+    <footer>
+      AI Rate Checker · Client-side heuristics · Data stays on this device · PolyU self-check tool
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
