@@ -211,6 +211,28 @@
     try { if (canVibrate) navigator.vibrate(ms || 16); } catch (e) {}
   }
 
+  const pulses = [];
+  let glowCenter = { x: 0, y: 0, w: 0 };
+
+  function ignite(x, y, power) {
+    const now = performance.now();
+    const pow = power == null ? 1 : power;
+    pulses.push({ x: x, y: y, t0: now, pow: pow });
+    if (pulses.length > 8) pulses.shift();
+    const speed = Math.max(W, H) * 3.4;
+    for (let i = 0; i < bots.length; i++) {
+      const b = bots[i];
+      const d = Math.hypot(b.x - x, b.y - y);
+      const at = now + d / speed * 1000;
+      if (!b.flashAt || at < b.flashAt) {
+        b.flashAt = at;
+        b.flashPow = Math.max(b.flashPow || 0, pow * (1.08 - Math.min(0.28, d / (Math.max(W, H) * 1.3))));
+      }
+    }
+    try { setHum(Math.min(1, 0.55 + pow * 0.45)); } catch (e) {}
+    blip(520 + pow * 160, 0.1, 0.045, 'sine');
+  }
+
   const SIZE = 6.2;
   const N_MAX = 2600;
   let N = 1600;
@@ -238,6 +260,8 @@
         vy: (Math.random() - 0.5) * 2,
         glow: 0,
         linked: 0,
+        flashAt: 0,
+        flashPow: 0,
         phase: Math.random() * Math.PI * 2,
         stiff: 0.026 + Math.random() * 0.034,
         wander: 0.3 + Math.random() * 0.55,
@@ -502,6 +526,16 @@
     const sepR = sp * 1.05;
     const m = 8 * DPR;
     let energy = 0, locked = 0;
+    const touches = Array.from(pointers.values());
+    if (!touches.length && mouse.down) touches.push(mouse);
+    if (hands.length) {
+      for (let hi = 0; hi < hands.length; hi++) {
+        if (hands[hi].points) touches.push(palmOf(hands[hi].points));
+      }
+    }
+    const holding = touches.length > 0;
+    const glowR = 170 * DPR;
+    let gx = 0, gy = 0, gw = 0;
 
     for (let i = 0; i < bots.length; i++) {
       const b = bots[i];
@@ -552,8 +586,32 @@
       if (b.y < m) { b.y = m; b.vy *= -0.25; }
       if (b.y > H - m) { b.y = H - m; b.vy *= -0.2; }
 
-      b.glow += ((sped > 1.6 * DPR || b.linked > 0.45 ? 1 : 0) - b.glow) * 0.16;
+      if (b.flashAt && previewT >= b.flashAt) {
+        b.glow = Math.max(b.glow, b.flashPow || 1);
+        b.flashAt = 0;
+        b.flashPow = 0;
+      } else {
+        let want = 0;
+        if (sped > 1.1 * DPR) want = Math.min(1, sped / (7 * DPR));
+        if (b.linked > 0.4) want = Math.max(want, 0.58);
+        if (holding) {
+          want = Math.max(want, 0.34);
+          for (let ti = 0; ti < touches.length; ti++) {
+            const p = touches[ti];
+            const dd = Math.hypot(b.x - p.x, b.y - p.y);
+            if (dd < glowR) want = Math.max(want, 1.08 * (1 - dd / glowR));
+          }
+        }
+        if (b.glow > want) b.glow += (want - b.glow) * 0.048;
+        else b.glow += (want - b.glow) * 0.38;
+      }
+      if (b.glow > 0.18) {
+        gx += b.x * b.glow;
+        gy += b.y * b.glow;
+        gw += b.glow;
+      }
     }
+    glowCenter = gw > 0.01 ? { x: gx / gw, y: gy / gw, w: gw / bots.length } : { x: W * 0.5, y: H * 0.5, w: 0 };
 
     const e = energy / Math.max(1, bots.length);
     setHum(Math.min(1, e / (7 * DPR) + locked / bots.length * 0.4));
@@ -597,27 +655,73 @@
     ctx.stroke();
   }
 
+  function drawLights() {
+    const now = previewT || performance.now();
+    if (glowCenter.w > 0.08) {
+      const rad = (90 + glowCenter.w * 420) * DPR;
+      const a = Math.min(0.42, glowCenter.w * 0.85);
+      const lg = ctx.createRadialGradient(glowCenter.x, glowCenter.y, 0, glowCenter.x, glowCenter.y, rad);
+      lg.addColorStop(0, 'rgba(120, 240, 230,' + a + ')');
+      lg.addColorStop(0.4, 'rgba(62, 200, 210,' + (a * 0.28) + ')');
+      lg.addColorStop(1, 'rgba(62, 200, 210, 0)');
+      ctx.fillStyle = lg;
+      ctx.fillRect(glowCenter.x - rad, glowCenter.y - rad, rad * 2, rad * 2);
+    }
+    for (let i = pulses.length - 1; i >= 0; i--) {
+      const p = pulses[i];
+      const age = now - p.t0;
+      if (age > 900) { pulses.splice(i, 1); continue; }
+      const t = age / 900;
+      const rad = (36 + t * 340) * DPR * (0.85 + p.pow * 0.2);
+      const a = (1 - t) * 0.55 * p.pow;
+      const rg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
+      rg.addColorStop(0, 'rgba(200, 255, 250,' + a + ')');
+      rg.addColorStop(0.28, 'rgba(80, 230, 220,' + (a * 0.45) + ')');
+      rg.addColorStop(1, 'rgba(62, 224, 210, 0)');
+      ctx.fillStyle = rg;
+      ctx.fillRect(p.x - rad, p.y - rad, rad * 2, rad * 2);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, Math.max(4, rad * 0.72), 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(210, 255, 250,' + ((1 - t) * 0.8 * p.pow) + ')';
+      ctx.lineWidth = Math.max(1, (3.2 - t * 2.2) * DPR);
+      ctx.stroke();
+    }
+  }
+
   function drawBots() {
     const base = Math.max(3.2, SIZE * DPR * 0.94);
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < bots.length; i++) {
+      const b = bots[i];
+      const g = b.glow;
+      if (g < 0.18) continue;
+      const s = base * (b.sz || 1) * (1.5 + g * 2.2);
+      ctx.fillStyle = 'rgba(70, 230, 220,' + (g * 0.32) + ')';
+      ctx.fillRect(b.x - s * 0.5, b.y - s * 0.5, s, s);
+    }
+    ctx.globalCompositeOperation = 'source-over';
     for (let i = 0; i < bots.length; i++) {
       const b = bots[i];
       const s = base * (b.sz || 1);
       const hs = s * 0.5;
       const g = b.glow, L = b.linked;
-      const r = 55 + g * 55 + L * 25;
-      const gb = 95 + g * 115;
-      const bb = 110 + g * 120 + L * 35;
-      ctx.fillStyle = 'rgb(' + (r | 0) + ',' + (gb | 0) + ',' + (bb | 0) + ')';
+      const r = 55 + g * 185 + L * 15;
+      const gb = 95 + g * 155;
+      const bb = 110 + g * 140;
+      ctx.fillStyle = 'rgb(' + Math.min(255, r | 0) + ',' + Math.min(255, gb | 0) + ',' + Math.min(255, bb | 0) + ')';
       ctx.fillRect(b.x - hs, b.y - hs, s, s);
     }
-    ctx.fillStyle = 'rgba(190, 255, 248, 0.4)';
-    const thin = Math.max(1, DPR * 0.65);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = 'rgba(230, 255, 252, 0.0)';
     for (let i = 0; i < bots.length; i++) {
       const b = bots[i];
-      if (b.linked < 0.5 && b.glow < 0.55) continue;
+      if (b.glow < 0.42) continue;
       const s2 = base * (b.sz || 1);
-      ctx.fillRect(b.x - s2 * 0.5, b.y - s2 * 0.5, s2, thin);
+      const hs = s2 * 0.38;
+      ctx.fillStyle = 'rgba(235, 255, 252,' + (b.glow * 0.72) + ')';
+      ctx.fillRect(b.x - hs, b.y - hs, hs * 2, hs * 2);
     }
+    ctx.globalCompositeOperation = 'source-over';
   }
 
   function drawCursors() {
@@ -657,6 +761,7 @@
     if (!bots.length) spawn();
     step();
     bg();
+    drawLights();
     drawBots();
     if (started) drawCursors();
     requestAnimationFrame(frame);
@@ -673,6 +778,7 @@
     haptic(12);
     thump();
     startHum();
+    ignite(p.x, p.y, 1);
   }, { passive: false });
   canvas.addEventListener('pointermove', (e) => {
     const p = ptr(e);
@@ -787,6 +893,8 @@
             if (next[i].pinch && !(hands[i] && hands[i].pinch)) {
               haptic(18);
               thump();
+              const pl = palmOf(next[i].points);
+              ignite(pl.x, pl.y, 1.05);
             }
           }
           hands.splice(0, hands.length, ...next);
