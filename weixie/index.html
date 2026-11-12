@@ -315,6 +315,8 @@
   let camOn = false;
   let started = true;
   let awakened = false;
+  let gravSX = 0, gravSY = 1; // screen-space gravity in g's (y+ is down the screen)
+  let motionOn = false, motionTried = false, motionFromAccel = false;
   let lastLock = 0, prevEnergy = 0;
   let previewT = 0;
   let wasPinch = false;
@@ -476,8 +478,9 @@
     const attractR = cell * 2.6;
     const attractR2 = attractR * attractR;
     const m = 10 * DPR;
-    const floor = H - 18 * DPR;
-    const gWorld = 0.11 * DPR;
+    const gWorld = 0.13 * DPR;
+    const gax = gWorld * gravSX;
+    const gay = gWorld * gravSY;
     const touches = wells();
     const holding = touches.length > 0;
     const glowR = 220 * DPR;
@@ -492,7 +495,7 @@
 
     for (let i = 0; i < bots.length; i++) {
       const b = bots[i];
-      let ax = 0, ay = gWorld;
+      let ax = gax, ay = gay;
 
       for (let ti = 0; ti < touches.length; ti++) {
         const p = touches[ti];
@@ -535,11 +538,11 @@
       b.linked += ((links > 2 ? 1 : 0) - b.linked) * 0.16;
       if (b.linked > 0.6) locked++;
 
-      if (b.y > floor) {
-        ay -= (b.y - floor) * 0.14;
-        b.vy *= 0.84;
-        b.vx *= 0.96;
-      }
+      const pad = 26 * DPR;
+      if (b.x < m + pad && gravSX < -0.12) { ax += (m + pad - b.x) * 0.08; b.vx *= 0.88; }
+      if (b.x > W - m - pad && gravSX > 0.12) { ax -= (b.x - (W - m - pad)) * 0.08; b.vx *= 0.88; }
+      if (b.y < m + pad && gravSY < -0.12) { ay += (m + pad - b.y) * 0.08; b.vy *= 0.88; }
+      if (b.y > H - m - pad && gravSY > 0.12) { ay -= (b.y - (H - m - pad)) * 0.08; b.vy *= 0.88; }
 
       const damp = holding ? 0.988 : 0.995;
       b.vx = (b.vx + ax) * damp;
@@ -551,10 +554,10 @@
       b.y += b.vy;
       energy += sped;
 
-      if (b.x < m) { b.x = m; b.vx = Math.abs(b.vx) * 0.32; }
-      if (b.x > W - m) { b.x = W - m; b.vx = -Math.abs(b.vx) * 0.32; }
-      if (b.y < m) { b.y = m; b.vy = Math.abs(b.vy) * 0.22; }
-      if (b.y > H - m) { b.y = H - m; b.vy = -Math.abs(b.vy) * 0.12; }
+      if (b.x < m) { b.x = m; b.vx = Math.abs(b.vx) * (gravSX < -0.15 ? 0.08 : 0.3); }
+      if (b.x > W - m) { b.x = W - m; b.vx = -Math.abs(b.vx) * (gravSX > 0.15 ? 0.08 : 0.3); }
+      if (b.y < m) { b.y = m; b.vy = Math.abs(b.vy) * (gravSY < -0.15 ? 0.08 : 0.28); }
+      if (b.y > H - m) { b.y = H - m; b.vy = -Math.abs(b.vy) * (gravSY > 0.15 ? 0.08 : 0.28); }
 
       if (b.flashAt && previewT >= b.flashAt) {
         b.glow = Math.max(b.glow, b.flashPow || 1);
@@ -709,6 +712,7 @@
     ignite(p.x, p.y, 1);
     if (!camTried) {
       camTried = true;
+      startMotion();
       startCamera();
     }
   }, { passive: false });
@@ -774,6 +778,70 @@
         octx.fill();
       }
     }
+  }
+
+  function screenAngle() {
+    if (screen.orientation && typeof screen.orientation.angle === 'number') return screen.orientation.angle;
+    if (typeof window.orientation === 'number') return window.orientation;
+    return 0;
+  }
+
+  function applyDeviceG(ax, ay) {
+    const ang = screenAngle();
+    let x = ax, y = ay;
+    if (ang === 90) { x = -ay; y = ax; }
+    else if (ang === -90 || ang === 270) { x = ay; y = -ax; }
+    else if (ang === 180) { x = -ax; y = -ay; }
+    // Apple device: +x right, +y toward top. Canvas: +y down.
+    let tx = x / 9.81;
+    let ty = -y / 9.81;
+    const mag = Math.hypot(tx, ty);
+    if (mag > 2.4) { tx *= 2.4 / mag; ty *= 2.4 / mag; }
+    const k = 0.22;
+    gravSX += (tx - gravSX) * k;
+    gravSY += (ty - gravSY) * k;
+  }
+
+  function onDeviceMotion(e) {
+    const a = e.accelerationIncludingGravity;
+    if (!a || a.x == null || a.y == null) return;
+    motionFromAccel = true;
+    applyDeviceG(a.x, a.y);
+  }
+
+  function onDeviceOrient(e) {
+    if (motionFromAccel) return;
+    if (e.beta == null || e.gamma == null) return;
+    // beta: 0 flat, 90 upright; gamma: right positive. Approx gravity on screen, in m/s^2.
+    const br = e.beta * Math.PI / 180;
+    const gr = e.gamma * Math.PI / 180;
+    const ax = Math.sin(gr) * 9.81;
+    const ay = -Math.sin(br) * Math.cos(gr) * 9.81;
+    applyDeviceG(ax, ay);
+  }
+
+  function startMotion() {
+    if (motionTried) return;
+    motionTried = true;
+    const attach = () => {
+      if (motionOn) return;
+      window.addEventListener('devicemotion', onDeviceMotion);
+      window.addEventListener('deviceorientation', onDeviceOrient);
+      motionOn = true;
+    };
+    const ask = (Ctor) => {
+      try {
+        if (Ctor && typeof Ctor.requestPermission === 'function') {
+          return Ctor.requestPermission().then((s) => { if (s === 'granted') attach(); }).catch(() => {});
+        }
+      } catch (err) {}
+      return null;
+    };
+    const p1 = ask(window.DeviceMotionEvent);
+    if (p1) return;
+    const p2 = ask(window.DeviceOrientationEvent);
+    if (p2) return;
+    attach();
   }
 
   async function startCamera() {
