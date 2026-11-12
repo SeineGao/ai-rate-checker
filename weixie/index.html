@@ -232,25 +232,41 @@
     const tableY = TABLE();
     for (let i = 0; i < N; i++) {
       bots.push({
-        x: W * 0.5 + (Math.random() - 0.5) * W * 0.5,
-        y: tableY + Math.random() * H * 0.16,
-        vx: 0, vy: 0,
+        x: W * 0.5 + (Math.random() - 0.5) * W * 0.72,
+        y: H * 0.42 + (Math.random() - 0.5) * H * 0.42,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
         glow: 0,
-        linked: 0
+        linked: 0,
+        phase: Math.random() * Math.PI * 2,
+        stiff: 0.026 + Math.random() * 0.034,
+        wander: 0.3 + Math.random() * 0.55,
+        sz: 0.78 + Math.random() * 0.5
       });
     }
   }
 
-  function sunflower(cx, cy, n, sp, squash) {
+  function rnd(i, k) {
+    const x = Math.sin((i + 1) * 12.9898 + k * 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  }
+
+  function cloud(cx, cy, n, radius, squash) {
     const out = new Array(n);
-    const ga = Math.PI * (3 - Math.sqrt(5));
-    const q = squash == null ? 1 : squash;
+    const q = squash == null ? 0.92 : squash;
     for (let i = 0; i < n; i++) {
-      const r = sp * Math.sqrt(i);
-      const a = i * ga;
+      const u = Math.max(1e-4, rnd(i, 1));
+      const v = rnd(i, 2);
+      const r = radius * Math.sqrt(-2 * Math.log(u)) * 0.5 * (0.72 + rnd(i, 3) * 0.55);
+      const a = v * Math.PI * 2;
       out[i] = { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r * q };
     }
     return out;
+  }
+
+  function sunflower(cx, cy, n, sp, squash) {
+    const radius = sp * Math.sqrt(Math.max(1, n)) * 0.95;
+    return cloud(cx, cy, n, radius, squash);
   }
 
   function ribbon(pts, n, sp, width) {
@@ -263,14 +279,11 @@
       cum.push(cum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
     }
     const L = cum[cum.length - 1] || 1;
-    const cols = Math.max(1, Math.round(width / sp));
-    const rows = Math.max(1, Math.ceil(n / cols));
     const out = new Array(n);
+    const w = width || sp * 6;
     for (let i = 0; i < n; i++) {
-      const row = Math.floor(i / cols);
-      const col = i % cols;
-      const t = rows === 1 ? 0.5 : (row + 0.5) / rows;
-      const dist = t * L;
+      const t = (i + rnd(i, 31) * 0.88) / n;
+      const dist = Math.min(L, Math.max(0, t * L));
       let k = 1;
       while (k < cum.length && cum[k] < dist) k++;
       const i1 = Math.max(1, Math.min(k, cum.length - 1));
@@ -282,7 +295,7 @@
       const dx = pts[i1].x - pts[i0].x, dy = pts[i1].y - pts[i0].y;
       const len = Math.hypot(dx, dy) || 1;
       const nx = -dy / len, ny = dx / len;
-      const off = (col - (cols - 1) / 2) * sp;
+      const off = (rnd(i, 32) - 0.5) * w * (0.65 + rnd(i, 33) * 0.7);
       out[i] = { x: x + nx * off, y: y + ny * off };
     }
     return out;
@@ -343,7 +356,17 @@
   let wasPinch = false;
 
   function pileSlots(n, sp) {
-    return sunflower(W * 0.5, TABLE() + 8 * DPR, n, sp, 0.55);
+    const cx = W * 0.5, cy = H * 0.6;
+    const rx = W * 0.42, ry = H * 0.24;
+    const out = new Array(n);
+    for (let i = 0; i < n; i++) {
+      const r = Math.sqrt(rnd(i, 21));
+      const a = rnd(i, 22) * Math.PI * 2;
+      const jx = 0.72 + rnd(i, 23) * 0.56;
+      const jy = 0.72 + rnd(i, 24) * 0.56;
+      out[i] = { x: cx + Math.cos(a) * r * rx * jx, y: cy + Math.sin(a) * r * ry * jy };
+    }
+    return out;
   }
 
   function waveSlots(n, sp) {
@@ -360,7 +383,7 @@
         y: base + Math.sin(t * Math.PI * 2 - wavePhase) * amp
       });
     }
-    return ribbon(pts, n, sp, sp * 9);
+    return ribbon(pts, n, sp, sp * 12);
   }
 
   function archBetween(a, b, n, sp, width) {
@@ -445,8 +468,10 @@
     const n = bots.length;
     const sp = spacing();
     if (!started) {
-      const breath = 1 + Math.sin(previewT / 700) * 0.06;
-      slots = sunflower(W * 0.5, H * 0.68, n, sp * breath, 0.92);
+      const breath = 1 + Math.sin(previewT / 1100) * 0.07;
+      const cx = W * 0.5 + Math.sin(previewT / 1800) * W * 0.03;
+      const cy = H * 0.58;
+      slots = cloud(cx, cy, n, Math.min(W, H) * 0.3 * breath, 0.84);
       return;
     }
     if (mode === 'wave') slots = waveSlots(n, sp);
@@ -482,10 +507,15 @@
       const b = bots[i];
       const t = slots[i] || slots[0];
       let ax = 0, ay = 0;
+      const k = b.stiff || 0.04;
       if (t) {
-        ax += (t.x - b.x) * 0.085;
-        ay += (t.y - b.y) * 0.085;
+        ax += (t.x - b.x) * k;
+        ay += (t.y - b.y) * k;
       }
+      const wt = previewT * 0.0017;
+      const wv = b.wander || 0.4;
+      ax += Math.cos(wt * 1.37 + b.phase) * wv * 0.16;
+      ay += Math.sin(wt * 1.11 + b.phase * 1.67) * wv * 0.16;
       const cx = Math.floor(b.x / cell), cy = Math.floor(b.y / cell);
       let links = 0;
       for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) {
@@ -499,8 +529,8 @@
           if (d2 < sepR * sepR && d2 > 0.01) {
             const d = Math.sqrt(d2);
             const f = (sepR - d) / sepR;
-            ax += (dx / d) * f * 0.72;
-            ay += (dy / d) * f * 0.72;
+            ax += (dx / d) * f * 0.48;
+            ay += (dy / d) * f * 0.48;
             links++;
           } else if (d2 < sepR * sepR * 2.6) links++;
         }
@@ -508,10 +538,10 @@
       b.linked += ((links > 2 ? 1 : 0) - b.linked) * 0.22;
       if (b.linked > 0.6) locked++;
 
-      b.vx = (b.vx + ax) * 0.78;
-      b.vy = (b.vy + ay) * 0.78;
+      b.vx = (b.vx + ax) * 0.865;
+      b.vy = (b.vy + ay) * 0.865;
       const sped = Math.hypot(b.vx, b.vy);
-      const maxs = 22 * DPR;
+      const maxs = 17 * DPR;
       if (sped > maxs) { b.vx *= maxs / sped; b.vy *= maxs / sped; }
       b.x += b.vx;
       b.y += b.vy;
@@ -568,10 +598,11 @@
   }
 
   function drawBots() {
-    const s = Math.max(3.2, SIZE * DPR * 0.94);
-    const hs = s * 0.5;
+    const base = Math.max(3.2, SIZE * DPR * 0.94);
     for (let i = 0; i < bots.length; i++) {
       const b = bots[i];
+      const s = base * (b.sz || 1);
+      const hs = s * 0.5;
       const g = b.glow, L = b.linked;
       const r = 55 + g * 55 + L * 25;
       const gb = 95 + g * 115;
@@ -579,12 +610,12 @@
       ctx.fillStyle = 'rgb(' + (r | 0) + ',' + (gb | 0) + ',' + (bb | 0) + ')';
       ctx.fillRect(b.x - hs, b.y - hs, s, s);
     }
-    ctx.fillStyle = 'rgba(190, 255, 248, 0.45)';
+    ctx.fillStyle = 'rgba(190, 255, 248, 0.4)';
     const thin = Math.max(1, DPR * 0.65);
-    const s2 = Math.max(3.2, SIZE * DPR * 0.94);
     for (let i = 0; i < bots.length; i++) {
       const b = bots[i];
       if (b.linked < 0.5 && b.glow < 0.55) continue;
+      const s2 = base * (b.sz || 1);
       ctx.fillRect(b.x - s2 * 0.5, b.y - s2 * 0.5, s2, thin);
     }
   }
