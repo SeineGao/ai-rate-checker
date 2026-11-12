@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="微械">
+<meta name="theme-color" content="#0c1016">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="manifest" href="manifest.webmanifest">
+<title>微械 · 小元件</title>
+<style>
+  :root { --ink:#e8eef4; --dim:#8b9aab; --cyan:#3ee0d2; --mag:#ff6b9a; --bg:#0c1016; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink);
+    font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Noto Sans SC", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; user-select: none; touch-action: none;
+    position: fixed; inset: 0; }
+  canvas#v { display: block; width: 100%; height: 100%; cursor: none; touch-action: none; }
+  #hud { position: fixed; inset: 0; pointer-events: none; opacity: 0; transition: opacity .4s; }
+  #hud.show { opacity: 1; }
+  #top { position: absolute; top: max(14px, env(safe-area-inset-top)); left: max(16px, env(safe-area-inset-left));
+    right: max(16px, env(safe-area-inset-right)); display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  #brand { font-size: 13px; letter-spacing: .28em; text-transform: uppercase; color: var(--dim); }
+  #brand b { display: block; font-size: 22px; letter-spacing: .08em; color: var(--ink); font-weight: 600; margin-top: 4px; }
+  #status { text-align: right; font-size: 13px; color: var(--dim); line-height: 1.65; }
+  #status .ok { color: var(--cyan); }
+  #status .warn { color: #e8b86a; }
+  #hint { position: absolute; bottom: 0; left: 0; right: 0; text-align: center; font-size: 14px; color: #c5d0db; letter-spacing: .04em;
+    padding: 36px 200px max(24px, env(safe-area-inset-bottom));
+    background: linear-gradient(to bottom, rgba(12,16,22,0) 0%, rgba(12,16,22,0.82) 55%);
+    text-shadow: 0 1px 8px #0c1016; }
+  #modes { pointer-events: auto; position: absolute; bottom: max(20px, env(safe-area-inset-bottom));
+    left: max(16px, env(safe-area-inset-left)); display: flex; gap: 6px; z-index: 2; }
+  #modes label { font-size: 12px; letter-spacing: .08em; padding: 8px 12px; border-radius: 6px; background: #141b22; border: 1px solid #2a3542; color: var(--dim); cursor: pointer; }
+  #modes label.on { border-color: var(--cyan); color: #d7fffb; background: #143c3a; }
+  #camBtn { pointer-events: auto; position: absolute; top: max(86px, calc(env(safe-area-inset-top) + 72px));
+    right: max(16px, env(safe-area-inset-right));
+    font-size: 12px; letter-spacing: .08em; padding: 8px 12px; border-radius: 6px; background: #141b22; border: 1px solid #2a3542; color: var(--dim); display: none; cursor: pointer; }
+  #camBtn.show { display: block; }
+  #start { position: fixed; inset: 0; background: linear-gradient(to bottom, rgba(12,16,22,0.55) 0%, rgba(12,16,22,0.15) 42%, rgba(12,16,22,0.05) 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: max(9vh, calc(env(safe-area-inset-top) + 36px)); z-index: 5; pointer-events: auto; }
+  #start h1 { font-size: 56px; font-weight: 650; letter-spacing: .18em; margin: 0 0 10px; }
+  #start h1 span { color: var(--cyan); }
+  #start p.lead { font-size: 16px; color: var(--dim); max-width: 460px; text-align: center; line-height: 1.7; margin-bottom: 28px; padding: 0 24px; }
+  .btns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; padding: 0 16px; }
+  label.btn, button, #camBtn, #modes label {
+    pointer-events: auto; appearance: none; -webkit-appearance: none;
+    font: inherit; cursor: pointer; text-align: center; }
+  label.btn { display: inline-block; border: 1px solid #2e4a52; background: #122026; color: var(--ink);
+    font-size: 15px; letter-spacing: .08em; padding: 14px 26px; border-radius: 8px; }
+  label.btn.primary { background: #143c3a; border-color: var(--cyan); color: #d7fffb; }
+  label.btn:active, #modes label:active, #camBtn:active { filter: brightness(1.2); }
+  /* hidden iOS switch: a real user tap on its label plays a Taptic tick */
+  #iosHap { position: absolute; left: -80px; top: -80px; width: 44px; height: 28px; opacity: 0; pointer-events: none; margin: 0; }
+  #mini { position: fixed; right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom));
+    width: 168px; height: 126px; border-radius: 8px; overflow: hidden;
+    border: 1px solid #243040; background: #000; opacity: 0; transition: opacity .3s; z-index: 3; pointer-events: none; }
+  #mini.on { opacity: .9; }
+  #mini video, #mini canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+  @media (pointer: coarse), (max-width: 700px) {
+    #start h1 { font-size: 48px; }
+    label.btn { font-size: 16px; padding: 16px 22px; min-height: 48px; }
+    #hint { font-size: 12px; padding-left: 16px; padding-right: 16px; padding-top: 48px; }
+    #modes { bottom: max(56px, calc(env(safe-area-inset-bottom) + 36px)); }
+    #modes label { font-size: 13px; padding: 10px 14px; min-height: 40px; }
+    #mini { width: 112px; height: 84px; }
+    canvas#v { cursor: none; }
+  }
+</style>
+</head>
+<body>
+  <input type="checkbox" switch id="iosHap" aria-hidden="true" tabindex="-1">
+  <canvas id="v"></canvas>
+  <div id="hud">
+    <div id="top">
+      <div id="brand">MICROBOTS<b>微械</b></div>
+      <div id="status"><div id="st-cam">手指指挥</div><div id="st-hap">触感待命</div><div id="st-n"></div></div>
+    </div>
+    <label id="camBtn" for="iosHap">打开摄像头</label>
+    <div id="modes">
+      <label for="iosHap" data-m="follow" class="on">1 跟随</label>
+      <label for="iosHap" data-m="wave">2 波浪</label>
+      <label for="iosHap" data-m="bridge">3 搭桥</label>
+    </div>
+    <div id="hint">按住并拖动：把小元件吸过来　松开：它们落回桌面　两指分开：在指尖之间搭桥　两指并拢：收成一团</div>
+    <div id="hintDesk" hidden>按住并移动：把小元件吸过来　松开：它们落回桌面　捏合：收成一团　两只手：在掌心之间搭桥</div>
+  </div>
+  <div id="mini"><video id="cam" playsinline autoplay muted></video><canvas id="overlay"></canvas></div>
+  <div id="start">
+    <h1>微<span>械</span></h1>
+    <p class="lead">无数细小的磁性元件，听你的手指挥，吸在一起组成形状。神经元接不上，就用手势和触感来下命令。</p>
+    <div class="btns">
+      <label class="btn primary" id="btnCam" for="iosHap">打开摄像头，用手指挥</label>
+      <label class="btn" id="btnTouch" for="iosHap">先用手指试</label>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
+<script>
+(function () {
+  const canvas = document.getElementById('v');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const overlay = document.getElementById('overlay');
+  const octx = overlay.getContext('2d');
+  const video = document.getElementById('cam');
+  const coarse = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+
+  if (!coarse) {
+    document.getElementById('btnTouch').textContent = '先用鼠标试';
+    document.getElementById('hint').textContent = document.getElementById('hintDesk').textContent;
+    document.getElementById('st-cam').textContent = '鼠标指挥';
+  }
+
+  let W = 0, H = 0, DPR = 1;
+  function viewSize() {
+    const vv = window.visualViewport;
+    return { w: (vv && vv.width) || innerWidth, h: (vv && vv.height) || innerHeight };
+  }
+  function resize() {
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    const v = viewSize();
+    W = canvas.width = Math.floor(v.w * DPR);
+    H = canvas.height = Math.floor(v.h * DPR);
+    canvas.style.width = v.w + 'px';
+    canvas.style.height = v.h + 'px';
+    const vv = window.visualViewport;
+    if (vv) canvas.style.transform = 'translate(' + vv.offsetLeft + 'px,' + vv.offsetTop + 'px)';
+  }
+  resize();
+  window.addEventListener('resize', () => { resize(); if (bots.length) spawn(); });
+  if (window.visualViewport) {
+    visualViewport.addEventListener('resize', () => { resize(); });
+    visualViewport.addEventListener('scroll', resize);
+  }
+
+  // —— audio ——
+  let ac = null, humOsc = null, humGain = null, noiseBuf = null;
+  function audio() {
+    if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+    if (ac.state === 'suspended') ac.resume();
+    return ac;
+  }
+  function ensureNoise() {
+    const a = audio();
+    if (noiseBuf) return noiseBuf;
+    const n = Math.floor(a.sampleRate * 0.05);
+    noiseBuf = a.createBuffer(1, n, a.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n * 0.18));
+    return noiseBuf;
+  }
+  function blip(freq, dur, vol, type) {
+    try {
+      const a = audio();
+      const o = a.createOscillator();
+      const g = a.createGain();
+      o.type = type || 'sine';
+      o.frequency.setValueAtTime(freq, a.currentTime);
+      o.frequency.exponentialRampToValueAtTime(Math.max(40, freq * 0.55), a.currentTime + dur);
+      g.gain.setValueAtTime(vol, a.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur);
+      o.connect(g); g.connect(a.destination);
+      o.start(); o.stop(a.currentTime + dur);
+    } catch (e) {}
+  }
+  function thump() {
+    try {
+      const a = audio();
+      const src = a.createBufferSource();
+      src.buffer = ensureNoise();
+      const f = a.createBiquadFilter();
+      f.type = 'lowpass'; f.frequency.value = 240;
+      const g = a.createGain();
+      g.gain.value = 0.11;
+      src.connect(f); f.connect(g); g.connect(a.destination);
+      src.start();
+      blip(86, 0.07, 0.05, 'sine');
+    } catch (e) {}
+  }
+  function startHum() {
+    try {
+      const a = audio();
+      if (humOsc) return;
+      humOsc = a.createOscillator();
+      humGain = a.createGain();
+      const f = a.createBiquadFilter();
+      f.type = 'lowpass'; f.frequency.value = 280;
+      humOsc.type = 'sine';
+      humOsc.frequency.value = 58;
+      humGain.gain.value = 0.0001;
+      humOsc.connect(humGain); humGain.connect(f); f.connect(a.destination);
+      humOsc.start();
+    } catch (e) {}
+  }
+  function setHum(level) {
+    if (!humGain || !ac) return;
+    humGain.gain.linearRampToValueAtTime(0.0001 + level * 0.016, ac.currentTime + 0.08);
+  }
+
+  let lastVibe = 0;
+  const canVibrate = typeof navigator.vibrate === 'function';
+  function haptic(ms) {
+    const now = performance.now();
+    if (now - lastVibe < 80) return;
+    lastVibe = now;
+    try { if (canVibrate) navigator.vibrate(ms || 16); } catch (e) {}
+  }
+
+  const SIZE = 6.2;
+  const N_MAX = 2600;
+  let N = 1600;
+  const bots = [];
+  let slots = [];
+
+  const TABLE = () => H * 0.78;
+  const spacing = () => Math.max(5.5, SIZE * DPR * 0.98);
+
+  function botCount() {
+    const v = viewSize();
+    const area = (v.w * v.h) / (1280 * 800);
+    N = Math.max(800, Math.min(N_MAX, Math.floor(1700 * Math.sqrt(Math.max(0.4, area)))));
+  }
+
+  function spawn() {
+    bots.length = 0;
+    botCount();
+    const tableY = TABLE();
+    for (let i = 0; i < N; i++) {
+      bots.push({
+        x: W * 0.5 + (Math.random() - 0.5) * W * 0.5,
+        y: tableY + Math.random() * H * 0.16,
+        vx: 0, vy: 0,
+        glow: 0,
+        linked: 0
+      });
+    }
+  }
+
+  function sunflower(cx, cy, n, sp, squash) {
+    const out = new Array(n);
+    const ga = Math.PI * (3 - Math.sqrt(5));
+    const q = squash == null ? 1 : squash;
+    for (let i = 0; i < n; i++) {
+      const r = sp * Math.sqrt(i);
+      const a = i * ga;
+      out[i] = { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r * q };
+    }
+    return out;
+  }
+
+  function ribbon(pts, n, sp, width) {
+    if (!pts || pts.length < 2) {
+      const p = (pts && pts[0]) || { x: W / 2, y: H / 2 };
+      return sunflower(p.x, p.y, n, sp);
+    }
+    const cum = [0];
+    for (let i = 1; i < pts.length; i++) {
+      cum.push(cum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
+    }
+    const L = cum[cum.length - 1] || 1;
+    const cols = Math.max(1, Math.round(width / sp));
+    const rows = Math.max(1, Math.ceil(n / cols));
+    const out = new Array(n);
+    for (let i = 0; i < n; i++) {
+      const row = Math.floor(i / cols);
+      const col = i % cols;
+      const t = rows === 1 ? 0.5 : (row + 0.5) / rows;
+      const dist = t * L;
+      let k = 1;
+      while (k < cum.length && cum[k] < dist) k++;
+      const i1 = Math.max(1, Math.min(k, cum.length - 1));
+      const i0 = i1 - 1;
+      const seg = (cum[i1] - cum[i0]) || 1;
+      const u = (dist - cum[i0]) / seg;
+      const x = pts[i0].x + (pts[i1].x - pts[i0].x) * u;
+      const y = pts[i0].y + (pts[i1].y - pts[i0].y) * u;
+      const dx = pts[i1].x - pts[i0].x, dy = pts[i1].y - pts[i0].y;
+      const len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len, ny = dx / len;
+      const off = (col - (cols - 1) / 2) * sp;
+      out[i] = { x: x + nx * off, y: y + ny * off };
+    }
+    return out;
+  }
+
+  const HAND_CONN = [
+    [0,1],[1,2],[2,3],[3,4],
+    [0,5],[5,6],[6,7],[7,8],
+    [0,9],[9,10],[10,11],[11,12],
+    [0,13],[13,14],[14,15],[15,16],
+    [0,17],[17,18],[18,19],[19,20],
+    [5,9],[9,13],[13,17]
+  ];
+  const FINGERS = [
+    [0, 1, 2, 3, 4],
+    [0, 5, 6, 7, 8],
+    [0, 9, 10, 11, 12],
+    [0, 13, 14, 15, 16],
+    [0, 17, 18, 19, 20]
+  ];
+
+  function palmOf(pts) {
+    const idx = [0, 5, 9, 13, 17];
+    let x = 0, y = 0;
+    for (const i of idx) { x += pts[i].x; y += pts[i].y; }
+    return { x: x / idx.length, y: y / idx.length };
+  }
+
+  function handSlots(h, n, sp) {
+    const pts = h.points;
+    if (!pts || pts.length < 21) return sunflower(W / 2, H / 2, n, sp);
+    const palm = palmOf(pts);
+    h.palm = palm;
+    if (h.pinch) return sunflower(palm.x, palm.y, n, sp * 0.88, 0.92);
+    const palmN = Math.floor(n * 0.38);
+    const rest = n - palmN;
+    const per = Math.floor(rest / 5);
+    const leftover = rest - per * 5;
+    const out = sunflower(palm.x, palm.y, palmN + leftover, sp * 1.02, 0.9);
+    const scale = Math.hypot(pts[0].x - pts[9].x, pts[0].y - pts[9].y) || 80;
+    const fw = Math.max(sp * 2.6, scale * 0.16);
+    for (let f = 0; f < 5; f++) {
+      const line = FINGERS[f].map(i => pts[i]);
+      out.push.apply(out, ribbon(line, per, sp, fw));
+    }
+    return out;
+  }
+
+  const hands = [];
+  const pointers = new Map();
+  let mouse = { x: 0, y: 0, down: false, inside: false };
+  let mode = 'follow';
+  let wavePhase = 0;
+  let camOn = false;
+  let started = false;
+  let lastLock = 0, prevEnergy = 0;
+  let previewT = 0;
+  let wasPinch = false;
+
+  function pileSlots(n, sp) {
+    return sunflower(W * 0.5, TABLE() + 8 * DPR, n, sp, 0.55);
+  }
+
+  function waveSlots(n, sp) {
+    wavePhase += 0.045;
+    const base = H * 0.58;
+    const amp = H * 0.13;
+    const x1 = W * 0.1, x2 = W * 0.9;
+    const steps = 80;
+    const pts = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      pts.push({
+        x: x1 + (x2 - x1) * t,
+        y: base + Math.sin(t * Math.PI * 2 - wavePhase) * amp
+      });
+    }
+    return ribbon(pts, n, sp, sp * 9);
+  }
+
+  function archBetween(a, b, n, sp, width) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const span = Math.hypot(dx, dy) || 1;
+    const lift = Math.min(H * 0.22, span * 0.35);
+    const steps = 48;
+    const pts = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      pts.push({
+        x: a.x + dx * t,
+        y: a.y + dy * t - Math.sin(t * Math.PI) * lift
+      });
+    }
+    return ribbon(pts, n, sp, width || sp * 6);
+  }
+
+  function twoNodeSlots(a, b, n, sp) {
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    const pinchT = 90 * DPR;
+    const pinched = d < pinchT;
+    if (pinched !== wasPinch && pinched) {
+      haptic(20);
+      thump();
+    }
+    wasPinch = pinched;
+    if (pinched) {
+      return sunflower((a.x + b.x) / 2, (a.y + b.y) / 2, n, sp * 0.86, 0.95);
+    }
+    const each = Math.floor(n * 0.26);
+    const mid = n - each * 2;
+    return sunflower(a.x, a.y, each, sp)
+      .concat(archBetween(a, b, mid, sp, sp * 5.5), sunflower(b.x, b.y, each, sp));
+  }
+
+  function bridgeSlots(n, sp) {
+    if (hands.length >= 2 && hands[0].points && hands[1].points) {
+      const a = palmOf(hands[0].points);
+      const b = palmOf(hands[1].points);
+      hands[0].palm = a; hands[1].palm = b;
+      const handN = Math.floor(n * 0.22);
+      const mid = n - handN * 2;
+      return handSlots(hands[0], handN, sp)
+        .concat(archBetween(a, b, mid, sp, sp * 6), handSlots(hands[1], handN, sp));
+    }
+    const pts = Array.from(pointers.values());
+    if (pts.length >= 2) return twoNodeSlots(pts[0], pts[1], n, sp);
+    const x1 = W * 0.16, x2 = W * 0.84;
+    const yBase = TABLE() - 8 * DPR;
+    let cx, cy;
+    if (pts.length === 1) { cx = pts[0].x; cy = Math.min(pts[0].y, yBase - 20 * DPR); }
+    else if (mouse.down || mouse.inside) { cx = mouse.x; cy = Math.min(mouse.y, yBase - 20 * DPR); }
+    else { cx = W * 0.5; cy = H * 0.34; }
+    const steps = 56;
+    const line = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps, u = 1 - t;
+      line.push({
+        x: u * u * x1 + 2 * u * t * cx + t * t * x2,
+        y: u * u * yBase + 2 * u * t * cy + t * t * yBase
+      });
+    }
+    return ribbon(line, n, sp, sp * 6.5);
+  }
+
+  function followSlots(n, sp) {
+    if (hands.length >= 2) return twoNodeSlots(palmOf(hands[0].points), palmOf(hands[1].points), n, sp);
+    if (hands.length === 1) return handSlots(hands[0], n, sp);
+    const pts = Array.from(pointers.values());
+    if (pts.length >= 2) return twoNodeSlots(pts[0], pts[1], n, sp);
+    if (pts.length === 1) return sunflower(pts[0].x, pts[0].y, n, sp * 0.98, 0.95);
+    if (mouse.down) return sunflower(mouse.x, mouse.y, n, sp * 0.98, 0.95);
+    if (mouse.inside && !coarse) {
+      const hover = Math.min(220, Math.floor(n * 0.14));
+      return sunflower(mouse.x, mouse.y, hover, sp * 1.15, 1).concat(pileSlots(n - hover, sp));
+    }
+    return pileSlots(n, sp);
+  }
+
+  function rebuildSlots() {
+    const n = bots.length;
+    const sp = spacing();
+    if (!started) {
+      const breath = 1 + Math.sin(previewT / 700) * 0.06;
+      slots = sunflower(W * 0.5, H * 0.68, n, sp * breath, 0.92);
+      return;
+    }
+    if (mode === 'wave') slots = waveSlots(n, sp);
+    else if (mode === 'bridge') slots = bridgeSlots(n, sp);
+    else slots = followSlots(n, sp);
+  }
+
+  let cell = 16, grid = new Map();
+  function key(cx, cy) { return (cx << 16) ^ (cy & 0xffff); }
+  function hash() {
+    grid.clear();
+    cell = Math.max(11, spacing() * 2.1);
+    for (let i = 0; i < bots.length; i++) {
+      const b = bots[i];
+      const cx = Math.floor(b.x / cell), cy = Math.floor(b.y / cell);
+      const k = key(cx, cy);
+      let arr = grid.get(k);
+      if (!arr) { arr = []; grid.set(k, arr); }
+      arr.push(i);
+    }
+  }
+
+  function step() {
+    previewT = performance.now();
+    rebuildSlots();
+    hash();
+    const sp = spacing();
+    const sepR = sp * 1.05;
+    const m = 8 * DPR;
+    let energy = 0, locked = 0;
+
+    for (let i = 0; i < bots.length; i++) {
+      const b = bots[i];
+      const t = slots[i] || slots[0];
+      let ax = 0, ay = 0;
+      if (t) {
+        ax += (t.x - b.x) * 0.085;
+        ay += (t.y - b.y) * 0.085;
+      }
+      const cx = Math.floor(b.x / cell), cy = Math.floor(b.y / cell);
+      let links = 0;
+      for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) {
+        const arr = grid.get(key(cx + ox, cy + oy));
+        if (!arr) continue;
+        for (let k = 0; k < arr.length; k++) {
+          const o = bots[arr[k]];
+          if (o === b) continue;
+          const dx = b.x - o.x, dy = b.y - o.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < sepR * sepR && d2 > 0.01) {
+            const d = Math.sqrt(d2);
+            const f = (sepR - d) / sepR;
+            ax += (dx / d) * f * 0.72;
+            ay += (dy / d) * f * 0.72;
+            links++;
+          } else if (d2 < sepR * sepR * 2.6) links++;
+        }
+      }
+      b.linked += ((links > 2 ? 1 : 0) - b.linked) * 0.22;
+      if (b.linked > 0.6) locked++;
+
+      b.vx = (b.vx + ax) * 0.78;
+      b.vy = (b.vy + ay) * 0.78;
+      const sped = Math.hypot(b.vx, b.vy);
+      const maxs = 22 * DPR;
+      if (sped > maxs) { b.vx *= maxs / sped; b.vy *= maxs / sped; }
+      b.x += b.vx;
+      b.y += b.vy;
+      energy += sped;
+
+      if (b.x < m) { b.x = m; b.vx *= -0.25; }
+      if (b.x > W - m) { b.x = W - m; b.vx *= -0.25; }
+      if (b.y < m) { b.y = m; b.vy *= -0.25; }
+      if (b.y > H - m) { b.y = H - m; b.vy *= -0.2; }
+
+      b.glow += ((sped > 1.6 * DPR || b.linked > 0.45 ? 1 : 0) - b.glow) * 0.16;
+    }
+
+    const e = energy / Math.max(1, bots.length);
+    setHum(Math.min(1, e / (7 * DPR) + locked / bots.length * 0.4));
+    const lockRatio = locked / Math.max(1, bots.length);
+    if (lockRatio > 0.28 && prevEnergy > e * 1.18 && performance.now() - lastLock > 450) {
+      lastLock = performance.now();
+      haptic(22);
+      blip(190 + lockRatio * 180, 0.09, 0.04, 'triangle');
+    }
+    prevEnergy = e;
+  }
+
+  function bg() {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#141c26');
+    g.addColorStop(0.55, '#10161e');
+    g.addColorStop(1, '#0b0e13');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    const lg = ctx.createRadialGradient(W * 0.5, H * 0.08, 20 * DPR, W * 0.5, H * 0.38, W * 0.72);
+    lg.addColorStop(0, 'rgba(80, 140, 160, 0.14)');
+    lg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = lg;
+    ctx.fillRect(0, 0, W, H);
+
+    const ty = TABLE();
+    ctx.fillStyle = '#161b22';
+    ctx.fillRect(0, ty, W, H - ty);
+    const edge = ctx.createLinearGradient(0, ty - 3 * DPR, 0, ty + 18 * DPR);
+    edge.addColorStop(0, 'rgba(62, 224, 210, 0.0)');
+    edge.addColorStop(0.4, 'rgba(62, 224, 210, 0.18)');
+    edge.addColorStop(1, 'rgba(20, 24, 30, 0)');
+    ctx.fillStyle = edge;
+    ctx.fillRect(0, ty - 3 * DPR, W, 28 * DPR);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 0; x < W; x += 36 * DPR) { ctx.moveTo(x, ty); ctx.lineTo(x, H); }
+    ctx.stroke();
+  }
+
+  function drawBots() {
+    const s = Math.max(3.2, SIZE * DPR * 0.94);
+    const hs = s * 0.5;
+    for (let i = 0; i < bots.length; i++) {
+      const b = bots[i];
+      const g = b.glow, L = b.linked;
+      const r = 55 + g * 55 + L * 25;
+      const gb = 95 + g * 115;
+      const bb = 110 + g * 120 + L * 35;
+      ctx.fillStyle = 'rgb(' + (r | 0) + ',' + (gb | 0) + ',' + (bb | 0) + ')';
+      ctx.fillRect(b.x - hs, b.y - hs, s, s);
+    }
+    ctx.fillStyle = 'rgba(190, 255, 248, 0.45)';
+    const thin = Math.max(1, DPR * 0.65);
+    const s2 = Math.max(3.2, SIZE * DPR * 0.94);
+    for (let i = 0; i < bots.length; i++) {
+      const b = bots[i];
+      if (b.linked < 0.5 && b.glow < 0.55) continue;
+      ctx.fillRect(b.x - s2 * 0.5, b.y - s2 * 0.5, s2, thin);
+    }
+  }
+
+  function drawCursors() {
+    const pts = Array.from(pointers.values());
+    const list = pts.length ? pts : ((mouse.inside || mouse.down) && !coarse ? [mouse] : []);
+    for (const p of list) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, ((mouse.down || pts.length) ? 16 : 9) * DPR, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(62,224,210,0.85)';
+      ctx.lineWidth = 1.5 * DPR;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2.1 * DPR, 0, Math.PI * 2);
+      ctx.fillStyle = '#3ee0d2';
+      ctx.fill();
+    }
+    if (!hands.length) return;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    for (const h of hands) {
+      const hp = h.points;
+      if (!hp) continue;
+      ctx.strokeStyle = h.pinch ? 'rgba(255,107,154,0.75)' : 'rgba(62,224,210,0.5)';
+      ctx.lineWidth = 2.2 * DPR;
+      ctx.beginPath();
+      for (const pair of HAND_CONN) {
+        const a = hp[pair[0]], b = hp[pair[1]];
+        if (!a || !b) continue;
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+      }
+      ctx.stroke();
+    }
+  }
+
+  function frame(now) {
+    if (!bots.length) spawn();
+    step();
+    bg();
+    drawBots();
+    if (started) drawCursors();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  function ptr(e) { return { x: e.clientX * DPR, y: e.clientY * DPR }; }
+  canvas.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    const p = ptr(e);
+    pointers.set(e.pointerId, p);
+    mouse.x = p.x; mouse.y = p.y; mouse.down = true; mouse.inside = true;
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+    haptic(12);
+    thump();
+    startHum();
+  }, { passive: false });
+  canvas.addEventListener('pointermove', (e) => {
+    const p = ptr(e);
+    if (pointers.has(e.pointerId)) pointers.set(e.pointerId, p);
+    mouse.x = p.x; mouse.y = p.y; mouse.inside = true;
+  });
+  function ptrEnd(e) {
+    pointers.delete(e.pointerId);
+    mouse.down = pointers.size > 0;
+    if (!pointers.size) wasPinch = false;
+  }
+  canvas.addEventListener('pointerup', ptrEnd);
+  canvas.addEventListener('pointercancel', ptrEnd);
+  canvas.addEventListener('pointerleave', (e) => {
+    if (!pointers.has(e.pointerId)) mouse.inside = false;
+  });
+  document.addEventListener('touchmove', (e) => { if (started) e.preventDefault(); }, { passive: false });
+
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll('#modes label').forEach(b => {
+      b.classList.toggle('on', b.dataset.m === m);
+    });
+    blip(m === 'wave' ? 280 : m === 'bridge' ? 210 : 240, 0.07, 0.03);
+  }
+  document.getElementById('modes').addEventListener('click', (e) => {
+    const b = e.target.closest('label');
+    if (b && b.dataset.m) setMode(b.dataset.m);
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === '1') setMode('follow');
+    if (e.key === '2') setMode('wave');
+    if (e.key === '3') setMode('bridge');
+  });
+
+  function setCam(t, cls) {
+    const el = document.getElementById('st-cam');
+    el.textContent = t;
+    el.className = cls || '';
+  }
+  function setHap(t, cls) {
+    const el = document.getElementById('st-hap');
+    el.textContent = t;
+    el.className = cls || '';
+  }
+
+  function pinchOf(lm) {
+    const a = lm[4], b = lm[8];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+  function mapLm(lm) {
+    return lm.map(p => ({
+      x: (1 - p.x) * W,
+      y: p.y * H * 0.92 + H * 0.02
+    }));
+  }
+  function drawMiniHands(landmarks) {
+    const w = overlay.width, h = overlay.height;
+    octx.clearRect(0, 0, w, h);
+    octx.strokeStyle = '#3ee0d2';
+    octx.fillStyle = '#ff6b9a';
+    octx.lineWidth = 2;
+    octx.lineCap = 'round';
+    for (const lm of landmarks) {
+      octx.beginPath();
+      for (const pair of HAND_CONN) {
+        const a = lm[pair[0]], b = lm[pair[1]];
+        octx.moveTo(a.x * w, a.y * h);
+        octx.lineTo(b.x * w, b.y * h);
+      }
+      octx.stroke();
+      for (let i = 0; i < lm.length; i++) {
+        octx.beginPath();
+        octx.arc(lm[i].x * w, lm[i].y * h, 2, 0, Math.PI * 2);
+        octx.fill();
+      }
+    }
+  }
+
+  async function startCamera() {
+    setCam('正在启动摄像头…');
+    document.getElementById('mini').classList.add('on');
+    document.getElementById('camBtn').classList.remove('show');
+    try {
+      if (typeof Hands === 'undefined') {
+        setCam('手势库没加载到，先用' + (coarse ? '手指' : '鼠标'), 'warn');
+        document.getElementById('mini').classList.remove('on');
+        document.getElementById('camBtn').classList.add('show');
+        return;
+      }
+      const handsMp = new Hands({
+        locateFile: (f) => 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/' + f
+      });
+      handsMp.setOptions({
+        maxNumHands: 2,
+        modelComplexity: 0,
+        minDetectionConfidence: 0.6,
+        minTrackingConfidence: 0.5
+      });
+      handsMp.onResults((res) => {
+        overlay.width = video.videoWidth || 160;
+        overlay.height = video.videoHeight || 120;
+        const lms = res.multiHandLandmarks || [];
+        drawMiniHands(lms);
+        if (lms.length) {
+          const next = lms.map(lm => {
+            const pts = mapLm(lm);
+            const p = pinchOf(lm);
+            return { points: pts, pinch: p < 0.07, open: p > 0.16 };
+          });
+          for (let i = 0; i < next.length; i++) {
+            if (next[i].pinch && !(hands[i] && hands[i].pinch)) {
+              haptic(18);
+              thump();
+            }
+          }
+          hands.splice(0, hands.length, ...next);
+          const pinched = next.some(h => h.pinch);
+          setCam((next.length === 2 ? '两只手 · 可以搭桥' : '手势已跟上') + (pinched ? ' · 捏合收紧' : ''), 'ok');
+        } else {
+          hands.length = 0;
+          setCam('摄像头已开 · 举起手来指挥', 'ok');
+        }
+      });
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+        audio: false
+      });
+      video.srcObject = stream;
+      await video.play();
+      if (typeof Camera === 'undefined') {
+        const loop = async () => {
+          if (video.readyState >= 2) await handsMp.send({ image: video });
+          requestAnimationFrame(loop);
+        };
+        loop();
+      } else {
+        const camera = new Camera(video, {
+          onFrame: async () => { await handsMp.send({ image: video }); },
+          width: 640,
+          height: 480
+        });
+        camera.start();
+      }
+      camOn = true;
+      setCam('摄像头已开 · 举起手来指挥', 'ok');
+    } catch (err) {
+      console.warn(err);
+      setCam('没有摄像头权限，用' + (coarse ? '手指' : '鼠标') + '指挥', 'warn');
+      document.getElementById('mini').classList.remove('on');
+      document.getElementById('camBtn').classList.add('show');
+    }
+  }
+
+  function hapStatus() {
+    const isiOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isiOS) setHap('点按钮有触感；拖动时用声音代替（苹果网页限制）', 'warn');
+    else if (canVibrate) setHap('触感已开（按住、捏合会震动）', 'ok');
+    else setHap('这台设备没有震动马达，用声音代替触感', 'warn');
+  }
+
+  function begin(withCam) {
+    document.getElementById('start').style.display = 'none';
+    document.getElementById('hud').classList.add('show');
+    started = true;
+    spawn();
+    startHum();
+    hapStatus();
+    document.getElementById('st-n').textContent = N + ' 个小元件';
+    if (withCam) startCamera();
+    else {
+      setCam((coarse ? '手指指挥' : '鼠标指挥') + ' · 随时可以再开摄像头');
+      document.getElementById('camBtn').classList.add('show');
+    }
+    thump();
+  }
+
+  document.getElementById('btnCam').addEventListener('click', () => begin(true));
+  document.getElementById('btnTouch').addEventListener('click', () => begin(false));
+  document.getElementById('camBtn').addEventListener('click', () => startCamera());
+})();
+</script>
+</body>
+</html>
