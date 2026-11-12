@@ -710,9 +710,11 @@
     thump();
     startHum();
     ignite(p.x, p.y, 1);
-    if (!camTried) {
+    // Motion is requested on pointerup/click (iOS: touch pointerdown is not
+    // a user activation). Camera starts on a later tap so its dialog does not
+    // swallow the motion permission.
+    if (motionTried && !camOn) {
       camTried = true;
-      startMotion();
       startCamera();
     }
   }, { passive: false });
@@ -722,12 +724,15 @@
     mouse.x = p.x; mouse.y = p.y; mouse.inside = true;
   });
   function ptrEnd(e) {
+    if (e && e.type === 'pointerup' && e.pointerType !== 'mouse') startMotion();
     pointers.delete(e.pointerId);
     mouse.down = pointers.size > 0;
     if (!pointers.size) wasPinch = false;
   }
   canvas.addEventListener('pointerup', ptrEnd);
   canvas.addEventListener('pointercancel', ptrEnd);
+  canvas.addEventListener('click', startMotion);
+  canvas.addEventListener('touchend', startMotion, { passive: true });
   canvas.addEventListener('pointerleave', (e) => {
     if (!pointers.has(e.pointerId)) mouse.inside = false;
   });
@@ -820,27 +825,40 @@
     applyDeviceG(ax, ay);
   }
 
+  let motionAsking = false;
   function startMotion() {
-    if (motionTried) return;
-    motionTried = true;
+    if (motionOn || motionAsking) return;
     const attach = () => {
       if (motionOn) return;
-      window.addEventListener('devicemotion', onDeviceMotion);
-      window.addEventListener('deviceorientation', onDeviceOrient);
+      window.addEventListener('devicemotion', onDeviceMotion, true);
+      window.addEventListener('deviceorientation', onDeviceOrient, true);
       motionOn = true;
+      motionTried = true;
     };
-    const ask = (Ctor) => {
+    const request = (Ctor) => {
+      if (!Ctor || typeof Ctor.requestPermission !== 'function') return false;
+      motionAsking = true;
       try {
-        if (Ctor && typeof Ctor.requestPermission === 'function') {
-          return Ctor.requestPermission().then((s) => { if (s === 'granted') attach(); }).catch(() => {});
-        }
-      } catch (err) {}
-      return null;
+        const p = Ctor.requestPermission();
+        if (!p || typeof p.then !== 'function') { motionAsking = false; return false; }
+        p.then((s) => {
+          motionAsking = false;
+          motionTried = true;
+          if (s === 'granted') attach();
+        }).catch(() => {
+          // No valid user activation — allow a later tap to retry.
+          motionAsking = false;
+        });
+        return true;
+      } catch (err) {
+        motionAsking = false;
+        return false;
+      }
     };
-    const p1 = ask(window.DeviceMotionEvent);
-    if (p1) return;
-    const p2 = ask(window.DeviceOrientationEvent);
-    if (p2) return;
+    // Apple's dialog is on DeviceOrientationEvent.requestPermission, and it
+    // must run in a user-activation event (click / touchend / non-mouse pointerup).
+    if (request(window.DeviceOrientationEvent)) return;
+    if (request(window.DeviceMotionEvent)) return;
     attach();
   }
 
