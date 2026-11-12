@@ -16,17 +16,26 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body {
     width: 100%; height: 100%; overflow: hidden; background: #000; color: #fff;
-    touch-action: none; user-select: none; -webkit-user-select: none;
+    touch-action: manipulation; user-select: none; -webkit-user-select: none;
     position: fixed; inset: 0;
   }
+  html.play, html.play body { touch-action: none; }
   canvas#v { display: block; width: 100%; height: 100%; background: #000; cursor: none; touch-action: none; }
   #cam, #overlay { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
+  #arm {
+    position: fixed; inset: 0; width: 100%; height: 100%; z-index: 20;
+    border: 0; margin: 0; padding: 0; background: #000; color: transparent;
+    -webkit-appearance: none; appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation; cursor: pointer; user-select: none;
+  }
 </style>
 </head>
 <body>
   <canvas id="v"></canvas>
   <video id="cam" playsinline autoplay muted></video>
   <canvas id="overlay"></canvas>
+  <button type="button" id="arm" aria-label="开始"></button>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
@@ -724,19 +733,16 @@
     mouse.x = p.x; mouse.y = p.y; mouse.inside = true;
   });
   function ptrEnd(e) {
-    if (e && e.type === 'pointerup' && e.pointerType !== 'mouse') startMotion();
     pointers.delete(e.pointerId);
     mouse.down = pointers.size > 0;
     if (!pointers.size) wasPinch = false;
   }
   canvas.addEventListener('pointerup', ptrEnd);
   canvas.addEventListener('pointercancel', ptrEnd);
-  canvas.addEventListener('click', startMotion);
-  canvas.addEventListener('touchend', startMotion, { passive: true });
   canvas.addEventListener('pointerleave', (e) => {
     if (!pointers.has(e.pointerId)) mouse.inside = false;
   });
-  document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+  function preventScroll(e) { e.preventDefault(); }
 
   function setMode(m) {
     mode = m;
@@ -825,41 +831,61 @@
     applyDeviceG(ax, ay);
   }
 
-  let motionAsking = false;
-  function startMotion() {
-    if (motionOn || motionAsking) return;
-    const attach = () => {
-      if (motionOn) return;
-      window.addEventListener('devicemotion', onDeviceMotion, true);
-      window.addEventListener('deviceorientation', onDeviceOrient, true);
-      motionOn = true;
-      motionTried = true;
-    };
-    const request = (Ctor) => {
-      if (!Ctor || typeof Ctor.requestPermission !== 'function') return false;
-      motionAsking = true;
+  function attachMotion() {
+    if (motionOn) return;
+    window.addEventListener('devicemotion', onDeviceMotion, true);
+    window.addEventListener('deviceorientation', onDeviceOrient, true);
+    motionOn = true;
+    motionTried = true;
+  }
+
+  // iOS Safari only reliably shows the system dialog from a real <button> click,
+  // and requestPermission() must be the first thing in that click call stack.
+  const arm = document.getElementById('arm');
+  if (arm) {
+    arm.addEventListener('click', function (ev) {
       try {
-        const p = Ctor.requestPermission();
-        if (!p || typeof p.then !== 'function') { motionAsking = false; return false; }
-        p.then((s) => {
-          motionAsking = false;
-          motionTried = true;
-          if (s === 'granted') attach();
-        }).catch(() => {
-          // No valid user activation — allow a later tap to retry.
-          motionAsking = false;
-        });
-        return true;
+        if (typeof DeviceOrientationEvent !== 'undefined' &&
+            typeof DeviceOrientationEvent.requestPermission === 'function') {
+          DeviceOrientationEvent.requestPermission().then(function (s) {
+            motionTried = true;
+            if (s === 'granted') attachMotion();
+          }).catch(function () { motionTried = true; });
+        } else if (typeof DeviceMotionEvent !== 'undefined' &&
+                   typeof DeviceMotionEvent.requestPermission === 'function') {
+          DeviceMotionEvent.requestPermission().then(function (s) {
+            motionTried = true;
+            if (s === 'granted') attachMotion();
+          }).catch(function () { motionTried = true; });
+        } else {
+          attachMotion();
+        }
       } catch (err) {
-        motionAsking = false;
-        return false;
+        attachMotion();
       }
-    };
-    // Apple's dialog is on DeviceOrientationEvent.requestPermission, and it
-    // must run in a user-activation event (click / touchend / non-mouse pointerup).
-    if (request(window.DeviceOrientationEvent)) return;
-    if (request(window.DeviceMotionEvent)) return;
-    attach();
+
+      const x = (ev.clientX || (window.innerWidth / 2)) * DPR;
+      const y = (ev.clientY || (window.innerHeight / 2)) * DPR;
+      if (!awakened) { awakened = true; spawn(); }
+      mouse.x = x; mouse.y = y; mouse.down = true; mouse.inside = true;
+      haptic(12);
+      thump();
+      startHum();
+      ignite(x, y, 1);
+      arm.remove();
+      document.documentElement.classList.add('play');
+      document.addEventListener('touchmove', preventScroll, { passive: false });
+      setTimeout(function () { mouse.down = false; }, 80);
+    }, { once: true });
+  }
+
+  function startMotion() {
+    // Kept as a no-op fallback name; permission is requested from #arm click.
+    if (motionOn) return;
+    if (typeof DeviceOrientationEvent === 'undefined' ||
+        typeof DeviceOrientationEvent.requestPermission !== 'function') {
+      attachMotion();
+    }
   }
 
   async function startCamera() {
